@@ -33,7 +33,6 @@ eigen_values = dmd.eigs
 
 reconstructed_data = dmd.reconstructed_data
 
-print(reconstructed_data - data)
-
+plot_summary(dmd)
 
 

@@ -38,7 +38,7 @@ plt.legend()
 plt.grid(True)
 plt.show()
 
-# Reconstruction function
+"""# Reconstruction function
 def reconstruct_data(modes, eigenvalues, timestep):
     # Number of modes
     k = modes.shape[1]
@@ -69,5 +69,5 @@ def reconstruct_data(modes, eigenvalues, timestep):
 reconstructed_data = reconstruct_data(koopman_modes, koopman_eigenvalues, timestep=0)
 
 # Print or use reconstructed_data as needed
-print("Reconstructed Data at timestep 0:\n", reconstructed_data)
+print("Reconstructed Data at timestep 0:\n", reconstructed_data)"""
 
