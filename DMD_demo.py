@@ -3,7 +3,7 @@ import pydmd
 from pydmd import DMD
 from pydmd.plotter import plot_summary
 from pydmd.preprocessing import hankel_preprocessing
-from pydmd.plotter import plot_eigs
+from pydmd.plotter import plot_eigs, plot_modes_2D, plot_snapshots_2D
 import pandas as pd
 import openpyxl
 import numpy as np
@@ -15,7 +15,7 @@ warnings.filterwarnings('ignore')
 
 excel_file = 'data/Ga_Test_001_2019_08_1508_15_19.xlsm'
 sheet_name = 'Processed data'
-data_frame = pd.read_excel(excel_file, sheet_name, usecols = 'D:R')
+data_frame = pd.read_excel(excel_file, sheet_name, usecols = 'F,H,K')
 time_frame = pd.read_excel(excel_file, sheet_name, usecols = 'B')
 time = time_frame.to_numpy().T
 data = data_frame.to_numpy().T
@@ -48,15 +48,17 @@ float_list = [time_to_float(t) for t in time[0]]
     plt.plot(float_list, lst)
     plt.plot(float_list, reconstructed_data[i])"""
 
-plt.plot(float_list, data[13])
-plt.plot(float_list, reconstructed_data[13])
+plt.plot(float_list, data[1])
+plt.plot(float_list, reconstructed_data[1])
     
 
 plt.show()
 
+#plot_modes_2D(dmd)
+#plot_eigs(dmd)
+#plot_snapshots_2D(dmd)
 
-
-plot_summary(dmd)
+#plot_summary(dmd, title_fontsize = 5, label_fontsize = 5)
 
 
  

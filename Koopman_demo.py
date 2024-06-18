@@ -15,7 +15,7 @@ data = array.T
 dmd = pykoop.Dmd()
 
 # Create a KoopmanPipeline object with the DMD regressor
-koopman_pipeline = pykoop.KoopmanPipeline(regressor=dmd)
+koopman_pipeline = pykoop.KoopmanPipeline(regressor = dmd)
 
 # Fit the Koopman model to the data
 koopman_pipeline.fit(data)
