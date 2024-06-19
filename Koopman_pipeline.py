@@ -27,10 +27,3 @@ data_predict = kp.predict_trajectory(data_O)
 
 kp.plot_predicted_trajectory(data)
 plt.show()
-
-X = pykoop.example_data_msd()
-#print(X)
-
-#print(data)
-
-#print(data_predict)
