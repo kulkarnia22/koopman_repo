@@ -13,16 +13,18 @@ data = data_frame.to_numpy()
 kp = pykoop.KoopmanPipeline(
         lifting_functions=[
             ('ma', pykoop.SkLearnLiftingFn(MaxAbsScaler())),
-            ('pl', pykoop.PolynomialLiftingFn(order=2)),
+            ('dl', pykoop.DelayLiftingFn(n_delays_state = 1000)),
             ('ss', pykoop.SkLearnLiftingFn(StandardScaler())),
         ],
         regressor=pykoop.Edmd(alpha=1),
     )
-print(data)
+
 kp.fit(data)
 
-data_O = pykoop.extract_initial_conditions(data, min_samples = 20)
-data_predict = kp.predict_trajectory(data_O)
+#data_O = pykoop.extract_initial_conditions(data, min_samples = 150)
+#data_predict = kp.predict_trajectory(data_O)
 
 kp.plot_predicted_trajectory(data)
 plt.show()
+
+#Koopman works for this data if we use delay based lifting functions. But, it requires a much greater delay
