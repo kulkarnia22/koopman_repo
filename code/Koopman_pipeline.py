@@ -8,8 +8,7 @@ import openpyxl
 excel_file = 'data/Ga_Test_001_2019_08_1508_15_19.xlsm'
 sheet_name = 'Processed data'
 data_frame = pd.read_excel(excel_file, sheet_name, usecols='F, H, K')
-array = data_frame.to_numpy()
-data = array
+data = data_frame.to_numpy()
 
 kp = pykoop.KoopmanPipeline(
         lifting_functions=[
@@ -19,7 +18,7 @@ kp = pykoop.KoopmanPipeline(
         ],
         regressor=pykoop.Edmd(alpha=1),
     )
-
+print(data)
 kp.fit(data)
 
 data_O = pykoop.extract_initial_conditions(data, min_samples = 20)
