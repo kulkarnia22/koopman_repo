@@ -18,7 +18,7 @@ temp_data = np.array(new)
 kp = pykoop.KoopmanPipeline(
         lifting_functions=[
             ('ma', pykoop.SkLearnLiftingFn(MaxAbsScaler())),
-            ('dl', pykoop.DelayLiftingFn(n_delays_state = 100)),
+            ('dl', pykoop.DelayLiftingFn(n_delays_state = 250)),
             ('ss', pykoop.SkLearnLiftingFn(StandardScaler())),
         ],
         regressor=pykoop.Edmd(alpha=1),
@@ -35,8 +35,8 @@ kp = pykoop.KoopmanPipeline(
             ),
         )],
         regressor=pykoop.Edmd(),
-    )
-"""
+    )"""
+
 
 """kp = pykoop.KoopmanPipeline(
     lifting_functions=[(
@@ -54,7 +54,7 @@ kp = pykoop.KoopmanPipeline(
 )"""
 
 kp.fit(temp_data)
-data_O = pykoop.extract_initial_conditions(temp_data, min_samples = 101)
+data_O = pykoop.extract_initial_conditions(temp_data, min_samples = 251)
 data_predict = kp.predict_trajectory(data_O)
 predict = kp.predict_multistep(temp_data)
 
@@ -62,7 +62,7 @@ predict = kp.predict_multistep(temp_data)
 """kp.plot_predicted_trajectory(temp_data)
 plt.show()"""
 
-print(predict - temp_data)
+print(predict[251:] - temp_data[251:])
 # Plot trajectories in phase space
 fig, ax = plt.subplots(constrained_layout=True, figsize=(6, 6))
 ax.plot(
