@@ -58,11 +58,12 @@ data_O = pykoop.extract_initial_conditions(temp_data, min_samples = 251)
 data_predict = kp.predict_trajectory(data_O)
 predict = kp.predict_multistep(temp_data)
 
+print(kp.min_samples_)
 
 """kp.plot_predicted_trajectory(temp_data)
 plt.show()"""
 
-print(predict[251:] - temp_data[251:])
+#print(predict[251:] - temp_data[251:])
 # Plot trajectories in phase space
 fig, ax = plt.subplots(constrained_layout=True, figsize=(6, 6))
 ax.plot(
