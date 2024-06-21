@@ -21,10 +21,16 @@ kp = pykoop.KoopmanPipeline(
 
 kp.fit(data)
 
-#data_O = pykoop.extract_initial_conditions(data, min_samples = 150)
-#data_predict = kp.predict_trajectory(data_O)
+data_O = pykoop.extract_initial_conditions(data, min_samples = 1001)
+data_predict = kp.predict_trajectory(data_O)
 
-kp.plot_predicted_trajectory(data)
-plt.show()
+print(len(data_predict))
+print(len(data_O))
+print(len(data[:1001]))
+print(data_predict - data[:1001])
+print(data_predict - data_O)
+
+"""kp.plot_predicted_trajectory(data)
+plt.show()"""
 
 #Koopman works for this data if we use delay based lifting functions. But, it requires a much greater delay
