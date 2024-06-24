@@ -2,6 +2,9 @@ import numpy as np
 from matplotlib import pyplot as plt
 import sklearn
 from sklearn.preprocessing import MaxAbsScaler, StandardScaler, MinMaxScaler
+from sklearn.linear_model import Lasso
+from sklearn.model_selection import TimeSeriesSplit
+from sklearn.metrics import mean_squared_error
 import pykoop
 import pandas as pd
 import scipy
@@ -11,71 +14,31 @@ data_frame = pd.read_csv(tsv_file, sep='\t', header = None, skiprows = 28, nrows
 temp_data = data_frame.to_numpy()
 new = []
 for lst in temp_data:
-    new.append(lst[1:3])
+    new.append([lst[1]])
 
-temp_data = np.array(new)
+data = np.array(new)
+train = data[:400]
 
 kp = pykoop.KoopmanPipeline(
         lifting_functions=[
             ('ma', pykoop.SkLearnLiftingFn(MaxAbsScaler())),
-            ('dl', pykoop.DelayLiftingFn(n_delays_state = 250)),
+            ('dl', pykoop.DelayLiftingFn(n_delays_state = 300)),
             ('ss', pykoop.SkLearnLiftingFn(StandardScaler())),
         ],
-        regressor=pykoop.Edmd(alpha=1),
+        regressor=pykoop.EdmdMeta(regressor=Lasso(alpha=1e-9)),
     )
 
-"""kp = pykoop.KoopmanPipeline(
-        lifting_functions=[(
-            'sp',
-            pykoop.SplitPipeline(
-                lifting_functions_state=[
-                    ('pl', pykoop.PolynomialLiftingFn(order=3))
-                ],
-                lifting_functions_input=None,
-            ),
-        )],
-        regressor=pykoop.Edmd(),
-    )"""
 
-
-"""kp = pykoop.KoopmanPipeline(
-    lifting_functions=[(
-        'rbf',
-        pykoop.RbfLiftingFn(
-        rbf='thin_plate',
-        centers=pykoop.QmcCenters(
-            n_centers=100,
-            qmc=scipy.stats.qmc.LatinHypercube,
-            random_state=666,
-                ),
-            ),
-        )],
-        regressor=pykoop.Edmd(),
-)"""
-
-kp.fit(temp_data)
-data_O = pykoop.extract_initial_conditions(temp_data, min_samples = 251)
+kp.fit(train)
+data_O = pykoop.extract_initial_conditions(train, min_samples = 301)
 data_predict = kp.predict_trajectory(data_O)
-predict = kp.predict_multistep(temp_data)
+predict = kp.predict_multistep(data)
 
-print(kp.min_samples_)
 
-"""kp.plot_predicted_trajectory(temp_data)
-plt.show()"""
-
-#print(predict[251:] - temp_data[251:])
-# Plot trajectories in phase space
-fig, ax = plt.subplots(constrained_layout=True, figsize=(6, 6))
-ax.plot(
-    temp_data[:, 1],
-    label='True trajectory'
-)
-ax.plot(predict[:, 1],label='Local prediction')
+fig, ax = plt.subplots(constrained_layout=True, figsize=(10, 10))
+ax.plot(data[:, 0][400:],label='True trajectory')
+ax.plot(predict[:, 0][400:],label='Local prediction')
 
 plt.show()
-
-"""kp.plot_koopman_matrix()
-plt.show()"""
-
 
 
