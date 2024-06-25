@@ -35,7 +35,7 @@ data_predict = kp.predict_trajectory(data_O)
 predict = kp.predict_multistep(data)
 
 
-fig, ax = plt.subplots(constrained_layout=True, figsize=(10, 10))
+fig, ax = plt.subplots(figsize=(10, 10))
 ax.plot(data[:, 0][400:],label='True trajectory')
 ax.plot(predict[:, 0][400:],label='Local prediction')
 

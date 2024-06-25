@@ -44,7 +44,7 @@ for fold, (train_index, test_index) in enumerate(tscv.split(data)):
         #regressor = pykoop.Edmd(alpha=1)
     )
 
-    """# Fit the model on the training data
+    # Fit the model on the training data
     kp.fit(train)
     data_O = pykoop.extract_initial_conditions(train, min_samples=num_delays + 1)
 
@@ -53,22 +53,22 @@ for fold, (train_index, test_index) in enumerate(tscv.split(data)):
 
     # Evaluate the model
     mse = mean_squared_error(test, test_predict)
-    mse_scores.append(mse)"""
+    mse_scores.append(mse)
 
     # Plotting
-    """fig, ax = plt.subplots(constrained_layout=True, figsize=(10, 6))
+    fig, ax = plt.subplots(constrained_layout=True, figsize=(10, 6))
     ax.plot(test, label='True trajectory')
     ax.plot(test_predict, label='Predicted trajectory')
     ax.set_title(f'Fold {len(mse_scores)}')
     ax.legend()
-    plt.show()"""
+    plt.show()
 
 # Average MSE across all folds
 print(mse_scores)
 average_mse = np.mean(mse_scores)
 print(f'Average MSE: {average_mse}')
 
-train1 = data[train_indeces[0]]
+"""train1 = data[train_indeces[0]]
 train2 = data[train_indeces[1]]
 train3 = data[train_indeces[2]]
 train4 = data[train_indeces[3]]
@@ -97,4 +97,4 @@ ax.plot(test, label='True trajectory')
 ax.plot(test_predict, label='Predicted trajectory')
 #ax.set_title(f'Fold {len(mse_scores)}')
 ax.legend()
-plt.show()
+plt.show()"""
