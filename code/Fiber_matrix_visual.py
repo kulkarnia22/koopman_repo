@@ -13,13 +13,6 @@ data_frame = pd.read_csv(tsv_file, sep='\t', header=None, skiprows=28, nrows=100
 temp_data = data_frame.to_numpy()
 data = np.array([lst[1:] for lst in temp_data])
 matrix = data.astype(float)
-# Plotting the matrix as an image
-"""plt.imshow(matrix, cmap='viridis', interpolation='nearest')
-plt.colorbar()  # Add color bar to show scale
-plt.title('Fiber Data Image')
-plt.xlabel('Columns')
-plt.ylabel('Rows')
-plt.show()"""
 
 kp = pykoop.KoopmanPipeline(
         lifting_functions=[
@@ -32,20 +25,37 @@ kp = pykoop.KoopmanPipeline(
         #regressor=pykoop.EdmdMeta(regressor=ElasticNet(alpha=1e-9, l1_ratio=0.5))
     )
 
- # Fit the model on the training data
+# Filter out columns with NaN values
+filtered_matrix = matrix[:, 600:700]
 
-train = matrix[:int(.9*len(matrix))]
-print(len(matrix), len(train))
-print(train.dtype)
-print(np.isnan(matrix).any())
-nan_mask = np.isnan(matrix)
-np_indices = np.where(nan_mask)
-print(np.where(np.isnan(train[3])))
-print(train[3][1398])
-#kp.fit(train)
-"""data_O = pykoop.extract_initial_conditions(train, min_samples = 101)
+nan_cols = np.any(np.isnan(filtered_matrix), axis=0)
+
+#filtered_matrix = filtered_matrix[:, ~nan_cols]
+
+train = filtered_matrix[:(int(.9*len(filtered_matrix)))]
+
+# Fit the model on the training data
+kp.fit(train)
+data_O = pykoop.extract_initial_conditions(train, min_samples = 101)
 # Predict on the test data
-test_predict = kp.predict_multistep(matrix[:1000])
-print(test_predict)"""
+test_predict = kp.predict_multistep(filtered_matrix[:1000])[len(train): ]
 
-#I don't know how to work with full fiber data matrix because of presence of NaN values
+fig, axs = plt.subplots(1, 2, figsize=(10, 5))  # 1 row, 2 columns
+
+# Determine the global vmin and vmax
+vmin = min(filtered_matrix[len(train):].min(), test_predict.min())
+vmax = max(filtered_matrix[len(train):].max(), test_predict.max())
+
+im1 = axs[0].imshow(filtered_matrix[len(train):], cmap='viridis', vmin = vmin, vmax = vmax)
+axs[0].set_title('Fiber Data Image')
+axs[0].set_xlabel('Columns')
+axs[0].set_ylabel('Rows')
+cbar1 = fig.colorbar(im1, ax=axs[0])
+
+im2 = axs[1].imshow(test_predict, cmap='viridis', vmin = vmin, vmax = vmax)
+axs[1].set_title('Predicted Fiber Data Image')
+axs[1].set_xlabel('Columns')
+axs[1].set_ylabel('Rows')
+cbar2 = fig.colorbar(im2, ax=axs[1])
+
+plt.show()
