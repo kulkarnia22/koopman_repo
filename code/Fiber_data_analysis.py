@@ -25,7 +25,8 @@ kp = pykoop.KoopmanPipeline(
             ('dl', pykoop.DelayLiftingFn(n_delays_state = 300)),
             ('ss', pykoop.SkLearnLiftingFn(StandardScaler())),
         ],
-        regressor=pykoop.EdmdMeta(regressor=Lasso(alpha=1e-9)),
+        #regressor=pykoop.EdmdMeta(regressor=Lasso(alpha=1e-9)),
+        regressor = pykoop.Edmd(alpha=1)
     )
 
 
