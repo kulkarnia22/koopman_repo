@@ -17,23 +17,24 @@ This process continues until all the data is covered.
 """
 
 # Load fiber data
-"""tsv_file = 'data/LDRD_Test001-03_2019-04-24_15-23-17_ch3_full.tsv'
+tsv_file = 'data/LDRD_Test001-03_2019-04-24_15-23-17_ch3_full.tsv'
 data_frame = pd.read_csv(tsv_file, sep='\t', header=None, skiprows=28, nrows=1000)
 temp_data = data_frame.to_numpy()
-data = np.array([lst[1] for lst in temp_data]).reshape(-1,1)"""
+print(temp_data.shape)
+data = np.array([lst[1200] for lst in temp_data]).reshape(-1,1)
 
 #Load water loop data
-excel_file = 'data/Ga_Test_001_2019_08_1508_15_19.xlsm'
+"""excel_file = 'data/Ga_Test_001_2019_08_1508_15_19.xlsm'
 sheet_name = 'Processed data'
 data_frame = pd.read_excel(excel_file, sheet_name, usecols='F, H, K')
-data = data_frame.to_numpy()
+data = data_frame.to_numpy()"""
 
-fig, ax = plt.subplots(constrained_layout=True, figsize=(10, 6))
+"""fig, ax = plt.subplots(constrained_layout=True, figsize=(10, 6))
 ax.plot(data[:,0], label='True trajectory')
-plt.show()
+plt.show()"""
 
 # Set up cross-validation
-n_splits = 5
+n_splits = 20
 tscv = TimeSeriesSplit(n_splits=n_splits)
 mse_scores = []
 window_and_test_size = []
@@ -44,7 +45,7 @@ for fold, (train_index, test_index) in enumerate(tscv.split(data)):
     train, test = data[train_index], data[test_index]
     window_and_test_size.append((len(train), len(test)))
     train_indeces.append(train_index)
-    num_delays = int(len(train)/2)
+    num_delays = int(.66*len(train))
     # Initialize the Koopman pipeline
     kp = pykoop.KoopmanPipeline(
         lifting_functions=[
@@ -61,6 +62,28 @@ for fold, (train_index, test_index) in enumerate(tscv.split(data)):
     data_O = pykoop.extract_initial_conditions(train, min_samples = num_delays + 1)
     kp.fit(train)
     # Predict on the test data
+    #Define koopman matrix
+    koopman_matrix = kp.regressor_.coef_
+
+    # Compute the singular values of the Koopman operator
+    U, S, Vt = np.linalg.svd(koopman_matrix, full_matrices=False)
+
+    min_magnitude_threshold = 1e-6
+    significant_singular_values = S[S >= min_magnitude_threshold]
+    cumulative_energy = np.cumsum(significant_singular_values**2) / np.sum(S**2)
+
+    # Determine the threshold index based on cumulative energy (e.g., 95% energy)
+    threshold_index = np.where(cumulative_energy >= 0.98)[0][0]
+
+    # Apply threshold to singular values
+    S_thresholded = np.zeros_like(S)
+    S_thresholded[:threshold_index] = S[:threshold_index]
+
+    # Reconstruct the Koopman operator using only significant singular values
+    koopman_operator_denoised = U @ np.diag(S_thresholded) @ Vt
+
+    # Update the regressor in the Koopman pipeline with the denoised Koopman operator
+    kp.regressor_.coef_ = koopman_operator_denoised
     test_predict = kp.predict_multistep(np.concatenate((train, test), axis = 0))[len(train):]
 
     # Evaluate the model

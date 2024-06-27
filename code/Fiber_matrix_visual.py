@@ -17,7 +17,7 @@ matrix = data.astype(float)
 kp = pykoop.KoopmanPipeline(
         lifting_functions=[
             ('pl', pykoop.SkLearnLiftingFn(MaxAbsScaler())),
-            ('dl', pykoop.DelayLiftingFn(n_delays_state=50)),
+            ('dl', pykoop.DelayLiftingFn(n_delays_state=100)),
             ('ss', pykoop.SkLearnLiftingFn(StandardScaler())),
         ],
         #regressor=pykoop.EdmdMeta(regressor = Lasso(alpha=1e-9)),
@@ -36,7 +36,7 @@ train = filtered_matrix[:(int(.9*len(filtered_matrix)))]
 
 # Fit the model on the training data
 kp.fit(train)
-data_O = pykoop.extract_initial_conditions(train, min_samples = 51)
+data_O = pykoop.extract_initial_conditions(train, min_samples = 101)
 # Predict on the test data
 test_predict = kp.predict_multistep(filtered_matrix[:1000])[len(train): ]
 

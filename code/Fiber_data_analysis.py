@@ -14,7 +14,7 @@ data_frame = pd.read_csv(tsv_file, sep='\t', header = None, skiprows = 28, nrows
 temp_data = data_frame.to_numpy()
 new = []
 for lst in temp_data:
-    new.append([lst[1]])
+    new.append([lst[600]])
 
 data = np.array(new)
 train = data[:400]
@@ -22,7 +22,7 @@ train = data[:400]
 kp = pykoop.KoopmanPipeline(
         lifting_functions=[
             ('ma', pykoop.SkLearnLiftingFn(MaxAbsScaler())),
-            ('dl', pykoop.DelayLiftingFn(n_delays_state = 300)),
+            ('dl', pykoop.DelayLiftingFn(n_delays_state = 350)),
             ('ss', pykoop.SkLearnLiftingFn(StandardScaler())),
         ],
         #regressor=pykoop.EdmdMeta(regressor=Lasso(alpha=1e-9)),
@@ -31,7 +31,7 @@ kp = pykoop.KoopmanPipeline(
 
 
 kp.fit(train)
-data_O = pykoop.extract_initial_conditions(train, min_samples = 301)
+data_O = pykoop.extract_initial_conditions(train, min_samples = 351)
 data_predict = kp.predict_trajectory(data_O)
 predict = kp.predict_multistep(data)
 

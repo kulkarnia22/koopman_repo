@@ -22,7 +22,7 @@ kp = pykoop.KoopmanPipeline(
 
 
 data_O = pykoop.extract_initial_conditions(data, min_samples = 1201)
-kp.fit(train)
+kp.fit(data)
 predict = kp.predict_multistep(data)[len(train):]
 
 fig, ax = plt.subplots(constrained_layout=True, figsize=(10, 10))
