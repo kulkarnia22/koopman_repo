@@ -17,24 +17,24 @@ This process continues until all the data is covered.
 """
 
 # Load fiber data
-tsv_file = 'data/LDRD_Test001-03_2019-04-24_15-23-17_ch3_full.tsv'
+"""tsv_file = 'data/LDRD_Test001-03_2019-04-24_15-23-17_ch3_full.tsv'
 data_frame = pd.read_csv(tsv_file, sep='\t', header=None, skiprows=28, nrows=1000)
 temp_data = data_frame.to_numpy()
 print(temp_data.shape)
-data = np.array([lst[1200] for lst in temp_data]).reshape(-1,1)
+data = np.array([lst[1200] for lst in temp_data]).reshape(-1,1)"""
 
 #Load water loop data
-"""excel_file = 'data/Ga_Test_001_2019_08_1508_15_19.xlsm'
+excel_file = 'data/Ga_Test_001_2019_08_1508_15_19.xlsm'
 sheet_name = 'Processed data'
 data_frame = pd.read_excel(excel_file, sheet_name, usecols='F, H, K')
-data = data_frame.to_numpy()"""
+data = data_frame.to_numpy()
 
 """fig, ax = plt.subplots(constrained_layout=True, figsize=(10, 6))
 ax.plot(data[:,0], label='True trajectory')
 plt.show()"""
 
 # Set up cross-validation
-n_splits = 20
+n_splits = 5
 tscv = TimeSeriesSplit(n_splits=n_splits)
 mse_scores = []
 window_and_test_size = []
@@ -73,7 +73,7 @@ for fold, (train_index, test_index) in enumerate(tscv.split(data)):
     cumulative_energy = np.cumsum(significant_singular_values**2) / np.sum(S**2)
 
     # Determine the threshold index based on cumulative energy (e.g., 95% energy)
-    threshold_index = np.where(cumulative_energy >= 0.98)[0][0]
+    threshold_index = np.where(cumulative_energy >= 0.95)[0][0]
 
     # Apply threshold to singular values
     S_thresholded = np.zeros_like(S)

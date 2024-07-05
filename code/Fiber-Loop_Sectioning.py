@@ -87,7 +87,7 @@ def find_average_koopman(chunks):
 
 chunks = split(loop_data, 5)
 whole = np.vstack(chunks)
-train = chunks[3]
+train = chunks[4][:int(.9*len(chunks[4]))]
 num_delays = int(.66*len(train))
 kp_actual = pykoop.KoopmanPipeline(
     lifting_functions=[
@@ -103,15 +103,15 @@ kp_actual.regressor_.coef_ = find_average_koopman(chunks[:len(chunks) - 1])
 print(" ")
 print(kp_actual.regressor_.coef_.shape)
 data_O = pykoop.extract_initial_conditions(train, min_samples = num_delays + 1)
-predict_data = kp_actual.predict_multistep(whole)[len(whole) - len(train):]
+predict_data = kp_actual.predict_multistep(chunks[4])[len(train):]
 print(predict_data)
 
 
-"""fig, ax = plt.subplots(figsize=(10, 10))
-ax.plot(whole[:, 0],label='True trajectory')
+fig, ax = plt.subplots(figsize=(10, 10))
+ax.plot(whole[:, 0][int(4.9*len(chunks[0])):],label='True trajectory')
 ax.plot(predict_data[:, 0],label='Local prediction')
 
-plt.show()"""
+plt.show()
 
 """
 I want to split the data into chunks. I want to conduct koopman analysis on each chunk except the last.

@@ -17,7 +17,8 @@ fiber_data = np.array([lst[1:] for lst in fiber_data])
 excel_file = 'data/Ga_Test_001_2019_08_1508_15_19.xlsm'
 sheet_name = 'Processed data'
 loop_data_frame = pd.read_excel(excel_file, sheet_name, usecols='F, H, K')
-loop_data = loop_data_frame.to_numpy()[700:2100]
+loop_data = loop_data_frame.to_numpy()[700:2100][:,2].reshape(-1,1)
+print(loop_data)
 
 """plt.figure(figsize=(10, 6))
 plt.plot(loop_data[:, 2], label='Original Data')
@@ -26,7 +27,7 @@ plt.show()"""
 kp = pykoop.KoopmanPipeline(
     lifting_functions=[
         ('pl', pykoop.SkLearnLiftingFn(MaxAbsScaler())),
-        ('dl', pykoop.DelayLiftingFn(n_delays_state=1000)),
+        ('dl', pykoop.DelayLiftingFn(n_delays_state=1100)),
         ('ss', pykoop.SkLearnLiftingFn(StandardScaler())),
         ], regressor=pykoop.Edmd(alpha=1))
 
@@ -64,8 +65,8 @@ test_predict = kp.predict_multistep(loop_data)[len(train):]
 
 # Plot the original and denoised predictions
 plt.figure(figsize=(10, 6))
-plt.plot(loop_data[:, 2][len(train):], label='Original Data')
-plt.plot(test_predict[:, 2], label='Denoised Prediction')
+plt.plot(loop_data[len(train):], label='Original Data')
+plt.plot(test_predict, label='Denoised Prediction')
 plt.title('Original Data vs. Denoised Prediction')
 plt.xlabel('Time Step')
 plt.ylabel('Value')
