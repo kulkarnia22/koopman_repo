@@ -31,15 +31,6 @@ U, S, Vh = np.linalg.svd(X, full_matrices=False)
 Sigma = np.diag(S)
 V = Vh.T
 
-#print(U.T.shape, np.linalg.inv(Sigma).shape, V.shape, X_prime.shape)
-
-#Truncate SVD values based on r
-r = 20
-U_r = U[:, : r]
-Sigma_r = Sigma[:r, :r]
-V_r = V[:, : r]
-
-
 #Try DMD with full A matrix for loop data
 A = X_prime @ V @ np.linalg.inv(Sigma) @ U.T
 
@@ -53,6 +44,13 @@ for i in range(eig_vectors_A.shape[1]):
     x_10_A = np.add(x_10_A, eig_vectors_A[:,i]*(eig_A[i]**9)*b_A[i])
 
 #Continue with actual DMD algorithm
+#Truncate SVD values based on r
+r = 20
+U_r = U[:, : r]
+Sigma_r = Sigma[:r, :r]
+V_r = V[:, : r]
+
+#Compute A_tilde matrix
 A_tilde = U_r.T @ X_prime @ V_r @ np.linalg.inv(Sigma_r)
 
 #Find the eigenvalues and eigenvectors of Atilde
