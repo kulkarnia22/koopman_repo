@@ -40,16 +40,24 @@ Sigma_r = Sigma[:r, :r]
 V_r = V[:, : r]
 
 
-#Continue with rest of DMD algorithm
-A_tilde = U_r.T @ X_prime @ V_r @ np.linalg.inv(Sigma_r)
+#Try DMD with full A matrix for loop data
 A = X_prime @ V @ np.linalg.inv(Sigma) @ U.T
 
+#Get eigenvalues and eigenvectors of A
+eig_A, eig_vectors_A = np.linalg.eig(A)
+b_A = np.linalg.pinv(eig_vectors_A) @ X[:, 0]
+
+#Reconstruct 10th vector state of data
+x_10_A = 0
+for i in range(eig_vectors_A.shape[1]):
+    x_10_A = np.add(x_10_A, eig_vectors_A[:,i]*(eig_A[i]**9)*b_A[i])
+
+#Continue with actual DMD algorithm
+A_tilde = U_r.T @ X_prime @ V_r @ np.linalg.inv(Sigma_r)
 
 #Find the eigenvalues and eigenvectors of Atilde
 eigenvalues, W = np.linalg.eig(A_tilde)
 lamda = np.diag(eigenvalues)
-
-eig_A, eig_vectors_A = np.linalg.eig(A)
 
 #Use eigenvectors to find Phi
 Phi = X_prime @ V_r @np.linalg.inv(Sigma_r) @ W
