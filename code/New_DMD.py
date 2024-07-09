@@ -2,7 +2,7 @@ import pydmd
 from pydmd import DMD
 import numpy as np
 import pandas as pd
-from scipy.linalg import svd
+import matplotlib.pyplot as plt
 
 #Load loop data
 excel_file = 'data/Ga_Test_001_2019_08_1508_15_19.xlsm'
@@ -19,31 +19,17 @@ fiber_data = fiber_data[:, 700:800].T
 
 #consider small input window
 #First prepare the data
-#We want the columns to represent vector states in time
 window_length = 50
-input = fiber_data[:, :window_length]
+input = loop_data[:, :window_length]
 X = input[:, :-1]
 X_prime = input[:, 1:]
 
 #Conduct SVD on the input
-
 U, S, Vh = np.linalg.svd(X, full_matrices=False)
 Sigma = np.diag(S)
 V = Vh.T
 
-#Try DMD with full A matrix for loop data
-A = X_prime @ V @ np.linalg.inv(Sigma) @ U.T
-
-#Get eigenvalues and eigenvectors of A
-eig_A, eig_vectors_A = np.linalg.eig(A)
-b_A = np.linalg.pinv(eig_vectors_A) @ X[:, 0]
-
-#Reconstruct 10th vector state of data
-x_10_A = 0
-for i in range(eig_vectors_A.shape[1]):
-    x_10_A = np.add(x_10_A, eig_vectors_A[:,i]*(eig_A[i]**9)*b_A[i])
-
-#Continue with actual DMD algorithm
+#Continue with DMD algorithm
 #Truncate SVD values based on r
 r = 20
 U_r = U[:, : r]
@@ -56,12 +42,14 @@ A_tilde = U_r.T @ X_prime @ V_r @ np.linalg.inv(Sigma_r)
 #Find the eigenvalues and eigenvectors of Atilde
 eigenvalues, W = np.linalg.eig(A_tilde)
 lamda = np.diag(eigenvalues)
+w_cts = []
+for i, eigenvalue in enumerate(eigenvalues):
+   w_cts.append(np.log(np.abs(eigenvalue))/2)
 
 #Use eigenvectors to find Phi
 Phi = X_prime @ V_r @np.linalg.inv(Sigma_r) @ W
 
 #Calculate the amplitudes for DMD expansion
-#Might need a better method for calculating b
 b = np.linalg.pinv(Phi) @ X[:, 0]
 
 #This should give me a prediction of the 10th element in my data
@@ -69,6 +57,20 @@ x_10 = 0
 for i in range(Phi.shape[1]):
     x_10 = np.add(x_10, Phi[:,i]*(eigenvalues[i]**9)*b[i])
 
-#I think this works well for fiber data where m << n. For loop data where m >> n, I might need
-#to try something else
+#let's try reconstructing the first 50 snapshots of the loop data
+print(Phi.shape)
+reconstruct_num = 50
+reconstructed_matrix = []
+for i in range(reconstruct_num):
+  x_i = 0
+  for j in range(Phi.shape[1]):
+    x_i = np.add(x_i, Phi[:,j]*(eigenvalues[j]**i)*b[j])
+  x_i = x_i.real
+  reconstructed_matrix.append(x_i)
+reconstructed_matrix = np.array(reconstructed_matrix)
 
+#Now let's try plotting the reconstructed tc3 against the actual tc3
+fig, ax = plt.subplots(figsize=(10, 10))
+ax.plot(loop_data[1, :50],label='True trajectory')
+ax.plot(reconstructed_matrix[:, 1], label='Reconstructed Trajectory')
+plt.show()
